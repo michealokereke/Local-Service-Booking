@@ -72,9 +72,13 @@ export const login: RequestHandler = async (req, res, next) => {
 export const refresh: RequestHandler = async (req, res, next) => {
   const req_ch_refresh = req.cookies.ch_refresh;
 
-  if (!req_ch_refresh) throw errorFormat("no refresh Token", 401);
+  if (!req_ch_refresh) {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
+    throw errorFormat("no refresh Token", 401);
+  }
 
-  const { ch_access, ch_refresh } = await refreshService(req_ch_refresh);
+  const { ch_access, ch_refresh } = await refreshService(req_ch_refresh, res);
 
   setCookies(res, "ch_access", ch_access, 1000 * 60 * 15);
   setCookies(res, "ch_refresh", ch_refresh, 1000 * 60 * 60 * 24 * 7);

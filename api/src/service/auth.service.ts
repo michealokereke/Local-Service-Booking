@@ -8,6 +8,8 @@ import {
   signRefreshToken,
   verifyRefreshToken,
 } from "../utils/jwt.js";
+import { clearCookies } from "../utils/cookies.js";
+import type { Response } from "express";
 
 export const createUser = async (params: {
   name: string;
@@ -47,10 +49,13 @@ export const generateTokens = async (param: {
   return { ch_access, ch_refresh };
 };
 
-export const refreshService = async (req_ch_refresh: string) => {
+export const refreshService = async (req_ch_refresh: string, res: Response) => {
   const decoded = verifyRefreshToken(req_ch_refresh);
-  if (!decoded || typeof decoded === "string")
+  if (!decoded || typeof decoded === "string") {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
     throw errorFormat("invalid or expired refresh Token", 401);
+  }
 
   const { tid, familyId, userId } = decoded;
 
@@ -62,11 +67,17 @@ export const refreshService = async (req_ch_refresh: string) => {
     !refreshTokenfamily ||
     refreshTokenfamily.revokedAt ||
     tidHash !== refreshTokenfamily.tokenId
-  )
+  ) {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
     throw errorFormat("invalid or expired refresh Token", 401);
+  }
 
-  if (!refreshTokenfamily.updatedAt)
+  if (!refreshTokenfamily.updatedAt) {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
     throw errorFormat("invalid or expired refresh Token", 401);
+  }
 
   const updatedAt = DateTime.fromJSDate(refreshTokenfamily.updatedAt, {
     zone: "utc",
@@ -75,13 +86,19 @@ export const refreshService = async (req_ch_refresh: string) => {
   const expiringAt = updatedAt.plus({ days: 7 });
 
   if (now > expiringAt) {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
     refreshTokenfamily.revokedAt = now.toJSDate();
     throw errorFormat("invalid or expired refresh Token", 401);
   }
 
   const user = await User.findById(userId);
 
-  if (!user) throw errorFormat("invalid or expired refresh Token", 401);
+  if (!user) {
+    clearCookies(res, "ch_refresh");
+    clearCookies(res, "ch_access");
+    throw errorFormat("invalid or expired refresh Token", 401);
+  }
 
   const tokenId = generateRandomCryptoToken();
   const tokenIdHash = sha256(tokenId);
