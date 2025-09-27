@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
@@ -20,8 +20,29 @@ const MultiStepForm: React.FC = () => {
     currency: "USD",
   });
 
+  useEffect(() => {
+    const getLocalStoredData = () => {
+      const stringifyUserData = localStorage.getItem("LSBUserData");
+      if (stringifyUserData) {
+        const userData = JSON.parse(stringifyUserData);
+        setFormData((prev) => ({
+          ...userData,
+          password: "",
+          confirmPassword: "",
+        }));
+      }
+    };
+
+    getLocalStoredData();
+  }, []);
+
   const updateField = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    localStorage.setItem(
+      "LSBUserData",
+      JSON.stringify({ ...formData, password: "", confirmPassword: "" })
+    );
   };
 
   const nextStep = () => {
@@ -61,6 +82,7 @@ const MultiStepForm: React.FC = () => {
     if (!isStepValid()) return;
 
     if (currentStep === steps.length - 1) {
+      localStorage.removeItem("LSBUserData");
       alert("Form submitted! Data: " + JSON.stringify(formData, null, 2));
     } else {
       nextStep();

@@ -2,12 +2,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-secondary: #475569;
 }
 
 @layer base {
   :root {
+    --color-secondary: #475569;
   }
   .dark {
+    --color-secondary: #94a3b8;
   }
 }
 

@@ -1,43 +1,38 @@
 // components/Logo.tsx
 import React from "react";
 
-const Logo: React.FC<{ className?: string }> = ({ className }) => {
+const Logo: React.FC<{ size?: number; className?: string }> = ({
+  size = 64,
+  className = "",
+}) => {
   return (
     <svg
       className={className}
       width="120"
       height="120"
-      viewBox="0 0 120 120"
+      viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label="Local Service Booking Logo"
+      stroke="currentColor"
+      style={{ width: size, height: size }}
     >
-      <defs>
-        <linearGradient id="gradient1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#6366F1" />
-          <stop offset="100%" stopColor="#8B5CF6" />
-        </linearGradient>
-        <linearGradient id="gradient2" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%" stopColor="#4F46E5" />
-          <stop offset="100%" stopColor="#A78BFA" />
-        </linearGradient>
-      </defs>
       <circle
-        cx="60"
-        cy="60"
-        r="54"
-        stroke="url(#gradient1)"
+        cx="50"
+        cy="50"
+        r="43"
         strokeWidth="12"
         className="animate-pulse-slow"
       />
       <path
-        d="M40 70 L60 40 L80 70 Z"
-        fill="url(#gradient2)"
-        className="transform-gpu hover:rotate-6 transition-transform duration-500"
+        d="M30 60 L50 35 L70 60 Z"
+        fill="currentColor"
+        className="transform-gpu hover:rotate-2 transition-transform duration-500"
       />
     </svg>
   );
 };
 
 export default Logo;
+//d="M40 70 L60 40 L80 70 Z"
